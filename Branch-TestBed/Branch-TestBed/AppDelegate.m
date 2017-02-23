@@ -5,7 +5,7 @@
 //  Created by Alex Austin on 6/5/14.
 //  Copyright (c) 2014 Branch Metrics. All rights reserved.
 //
-#import "Branch.h"
+#import "Branch/Branch.h"
 #import "AppDelegate.h"
 #import "LogOutputViewController.h"
 #import "NavigationController.h"
@@ -18,24 +18,29 @@
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /**
      * // Push notification support (Optional)
      * [self registerForPushNotifications:application];
      */
 
     Branch *branch = [Branch getInstance];
+    
+    // Comment / un-comment to toggle debugging:
     [branch setDebug];
     
     // For Apple Search Ads
     // [branch delayInitToCheckForSearchAds];
     // [branch setAppleSearchAdsDebugMode];
-
+    
     [branch setWhiteListedSchemes:@[@"branchtest"]];
 
-
     // Automatic Deeplinking on "deeplink_text"
-    NavigationController *navigationController = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]] instantiateInitialViewController];
+    NavigationController *navigationController =
+        [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]]
+            instantiateInitialViewController];
+
     [branch registerDeepLinkController:navigationController forKey:@"deeplink_text"];
     
     /**
@@ -44,7 +49,9 @@
      */
 
     // Required. Initialize session. automaticallyDisplayDeepLinkController is optional (default is NO).
-    [branch initSessionWithLaunchOptions:launchOptions automaticallyDisplayDeepLinkController:YES deepLinkHandler:^(NSDictionary *params, NSError *error) {
+    [branch initSessionWithLaunchOptions:launchOptions
+        automaticallyDisplayDeepLinkController:YES
+        deepLinkHandler:^(NSDictionary *params, NSError *error) {
         if (!error) {
 
             NSLog(@"initSession succeeded with params: %@", params);

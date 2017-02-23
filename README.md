@@ -1,6 +1,14 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 
+## What's New
+### We are starting an SDK beta test program at Branch!
+
+Get priority updates and receive swag when you sign up and participate in the beta program.
+
+[Read about the Branch SDK Beta Program](https://github.com/BranchMetrics/ios-branch-deep-linking/wiki/The-Branch-SDK-Beta-Project)<br/>
+[Sign up for the Branch SDK Beta Program](https://docs.google.com/a/branch.io/forms/d/1fbXVFG11i-sQkd9pzHUu-U3B2qCBuwA64pVnsTQwQMo)
+
 # Branch Metrics iOS SDK Reference
 
 This is a repository of our open source iOS SDK, and the information presented here serves as a reference manual for our iOS SDK. See the table of contents below for a complete list of the content featured in this document.
@@ -367,20 +375,36 @@ Nothing
 
 ### Retrieve session (install or open) parameters
 
-These session parameters will be available at any point later on with this command. If no params, the dictionary will be empty. This refreshes with every new session (app installs AND app opens).
+These session parameters will be available at any point later on with this command. If no parameters are available then Branch will return an empty dictionary. This refreshes with every new session (app installs AND app opens).
+
+Warning: If the Branch SDK is retrieving the latest session parameters via a network call, this method will return the *previous* session's parameters.  The best practice is to set a callback deep link handler at Branch initialization.  That handler will be called when a Branch deep link is handled and the most recent session parameters are available.
+
+Otherwise, use the `getLatestReferringParamsSynchronous` method. This method always returns the latest session parameters.  The downside is that is may block the calling thread until the current results are available.
 
 #### Methods
 
 ###### Objective-C
 
 ```objc
+// This is an example of `getLatestReferringParams`.
+// Warning: It may return the previous results.
 NSDictionary *sessionParams = [[Branch getInstance] getLatestReferringParams];
+
+// This is an example of `getLatestReferringParamsSynchronous`.
+// Warning: It may block the current thread until the latest results are available.
+NSDictionary *sessionParams = [[Branch getInstance] getLatestReferringParamsSynchronous];
 ```
 
 ###### Swift
 
 ```swift
+// This is an example of `getLatestReferringParams`.
+// Warning: It may return the previous results.
 let sessionParams = Branch.getInstance().getLatestReferringParams()
+
+// This is an example of `getLatestReferringParamsSynchronous`.
+// Warning: It may block the current thread until the latest results are available.
+let sessionParams = Branch.getInstance().getLatestReferringParamsSynchronous()
 ```
 
 #### Parameters
@@ -437,7 +461,8 @@ Branch.getInstance().setIdentity(your user id)  // your user id should not excee
 
 #### Parameters
 
-None
+**identity** (NSString *) _required_
+: This is the alias you'd like to label your user in the Branch system. Note that we only support a single alias per user.
 
 ### Logout
 
@@ -503,8 +528,12 @@ Some example events you might want to track:
 
 ####Parameters
 
-None
 
+**event** (NSString *) _required_
+: This is the event string you'd like to send to Branch. You can view the attribution of which links drove events to occur in the analytics.
+
+**state** (NSDictionary *) _optional_
+: If you'd like to pass additional metadata along with the event, you should use this dictionary. For example, this is how you pass revenue into Branch using the BNCPurchaseAmount constant as a key.
 
 ### Apple Search Ads
 
@@ -609,7 +638,7 @@ branchUniversalObject.addMetadataKey("property2", value: "red")
 
 #### Parameters
 
-**canonicalIdentifier**: This is the unique identifier for content that will help Branch dedupe across many instances of the same thing. If you have a website with pathing, feel free to use that. Or if you have database identifiers for entities, use those.
+**canonicalIdentifier**: This is the unique identifier for content that will help Branch de-dupe across many instances of the same thing. If you have a website with pathing, feel free to use that. Or if you have database identifiers for entities, use those.
 
 **title**: This is the name for the content and will automatically be used for the OG tags. It will insert $og_title into the data dictionary of any link created.
 
