@@ -5,7 +5,7 @@
 //  Created by Graham Mueller on 6/12/15.
 //  Copyright (c) 2015 Branch Metrics. All rights reserved.
 //
-#import "BranchTest.h"
+#import "BNCTestCase.h"
 #import "BranchShortUrlSyncRequest.h"
 #import "BranchConstants.h"
 #import "BNCPreferenceHelper.h"
@@ -13,7 +13,7 @@
 #import "BNCPreferenceHelper.h"
 #import "BNCEncodingUtils.h"
 
-@interface BranchShortUrlSyncRequestTests : BranchTest
+@interface BranchShortUrlSyncRequestTests : BNCTestCase
 
 @end
 
@@ -27,6 +27,7 @@
     NSString * const CHANNEL = @"foo-channel";
     NSString * const FEATURE = @"foo-feature";
     NSString * const STAGE = @"foo-stage";
+    NSString * const CAMPAIGN = @"foo-campaign";
     NSDictionary * const PARAMS = @{};
     BNCLinkData * const LINK_DATA = [[BNCLinkData alloc] init];
     BNCLinkCache * const LINK_CACHE = [[BNCLinkCache alloc] init];
@@ -43,7 +44,7 @@
     BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
     NSDictionary * const expectedParams = @{
         BRANCH_REQUEST_KEY_SESSION_ID: preferenceHelper.sessionID,
-        BRANCH_REQUEST_KEY_BRANCH_IDENTITY: preferenceHelper.identityID,
+    /*  BRANCH_REQUEST_KEY_BRANCH_IDENTITY: preferenceHelper.identityID, */     // If we set an alias, don't set an identity.
         BRANCH_REQUEST_KEY_DEVICE_FINGERPRINT_ID: preferenceHelper.deviceFingerprintID,
         BRANCH_REQUEST_KEY_URL_ALIAS: ALIAS,
         BRANCH_REQUEST_KEY_URL_CHANNEL: CHANNEL,
@@ -56,9 +57,26 @@
         BRANCH_REQUEST_KEY_URL_TAGS: TAGS
     };
     
-    BranchShortUrlSyncRequest *request = [[BranchShortUrlSyncRequest alloc] initWithTags:TAGS alias:ALIAS type:LINK_TYPE matchDuration:DURATION channel:CHANNEL feature:FEATURE stage:STAGE params:PARAMS linkData:LINK_DATA linkCache:LINK_CACHE];
+    BranchShortUrlSyncRequest *request =
+        [[BranchShortUrlSyncRequest alloc]
+            initWithTags:TAGS
+            alias:ALIAS
+            type:LINK_TYPE
+            matchDuration:DURATION
+            channel:CHANNEL
+            feature:FEATURE
+            stage:STAGE
+            campaign:CAMPAIGN
+            params:PARAMS
+            linkData:LINK_DATA
+            linkCache:LINK_CACHE];
+
     id serverInterfaceMock = OCMClassMock([BNCServerInterface class]);
-    [[serverInterfaceMock expect] postRequest:expectedParams url:[self stringMatchingPattern:BRANCH_REQUEST_ENDPOINT_GET_SHORT_URL] key:[OCMArg any] log:YES];
+    [[serverInterfaceMock expect]
+        postRequest:expectedParams
+        url:[self stringMatchingPattern:BRANCH_REQUEST_ENDPOINT_GET_SHORT_URL]
+        key:[OCMArg any]
+        log:YES];
     
     [request makeRequest:serverInterfaceMock key:nil];
     
@@ -81,9 +99,25 @@
         BRANCH_REQUEST_KEY_URL_LINK_TYPE: @(LINK_TYPE)
     };
     
-    BranchShortUrlSyncRequest *request = [[BranchShortUrlSyncRequest alloc] initWithTags:nil alias:nil type:LINK_TYPE matchDuration:0 channel:nil feature:nil stage:nil params:nil linkData:LINK_DATA linkCache:LINK_CACHE];
+    BranchShortUrlSyncRequest *request =
+        [[BranchShortUrlSyncRequest alloc]
+            initWithTags:nil
+            alias:nil
+            type:LINK_TYPE
+            matchDuration:0
+            channel:nil
+            feature:nil
+            stage:nil
+            campaign:nil
+            params:nil
+            linkData:LINK_DATA
+            linkCache:LINK_CACHE];
     id serverInterfaceMock = OCMClassMock([BNCServerInterface class]);
-    [[serverInterfaceMock expect] postRequest:expectedParams url:[OCMArg any] key:[OCMArg any] log:YES];
+    [[serverInterfaceMock expect]
+        postRequest:expectedParams
+        url:[OCMArg any]
+        key:[OCMArg any]
+        log:YES];
     
     [request makeRequest:serverInterfaceMock key:nil];
     
@@ -97,7 +131,19 @@
     response.data = REFERRAL_RESPONSE_DATA;
     response.statusCode = @200;
     
-    BranchShortUrlSyncRequest *request = [[BranchShortUrlSyncRequest alloc] initWithTags:nil alias:nil type:BranchLinkTypeOneTimeUse matchDuration:1 channel:nil feature:nil stage:nil params:nil linkData:nil linkCache:nil];
+    BranchShortUrlSyncRequest *request =
+        [[BranchShortUrlSyncRequest alloc]
+            initWithTags:nil
+            alias:nil
+            type:BranchLinkTypeOneTimeUse
+            matchDuration:1
+            channel:nil
+            feature:nil
+            stage:nil
+            campaign:nil
+            params:nil
+            linkData:nil
+            linkCache:nil];
     NSString *url = [request processResponse:response];
     
     XCTAssertEqualObjects(url, URL);
@@ -117,16 +163,34 @@
     NSString * const CHANNEL = @"foo-channel";
     NSString * const FEATURE = @"foo-feature";
     NSString * const STAGE = @"foo-stage";
+    NSString * const CAMPAIGN = @"foo-campaign";
     NSDictionary * const PARAMS = @{ @"foo-param": @"bar-value" };
     NSData * const PARAMS_DATA = [BNCEncodingUtils encodeDictionaryToJsonData:PARAMS];
     NSString * const ENCODED_PARAMS = [BNCEncodingUtils base64EncodeData:PARAMS_DATA];
     
-    NSString * EXPECTED_URL = [NSString stringWithFormat:@"%@?tags=%@&tags=%@&alias=%@&channel=%@&feature=%@&stage=%@&type=%ld&matchDuration=%ld&source=ios&data=%@", USER_URL, TAG1, TAG2, ALIAS, CHANNEL, FEATURE, STAGE, (long)LINK_TYPE, (long)DURATION, ENCODED_PARAMS];
+    NSString * EXPECTED_URL =
+        [NSString stringWithFormat:
+            @"%@?tags=%@&tags=%@&alias=%@&channel=%@&feature=%@&stage=%@&type=%ld"
+             "&duration=%ld&source=ios&data=%@",
+             USER_URL, TAG1, TAG2, ALIAS, CHANNEL, FEATURE, STAGE,
+             (long)LINK_TYPE, (long)DURATION, ENCODED_PARAMS];
     
     BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
     preferenceHelper.userUrl = USER_URL;
     
-    BranchShortUrlSyncRequest *request = [[BranchShortUrlSyncRequest alloc] initWithTags:TAGS alias:ALIAS type:LINK_TYPE matchDuration:DURATION channel:CHANNEL feature:FEATURE stage:STAGE params:PARAMS linkData:nil linkCache:nil];
+    BranchShortUrlSyncRequest *request =
+        [[BranchShortUrlSyncRequest alloc]
+            initWithTags:TAGS
+            alias:ALIAS
+            type:LINK_TYPE
+            matchDuration:DURATION
+            channel:CHANNEL
+            feature:FEATURE
+            stage:STAGE
+            campaign:CAMPAIGN
+            params:PARAMS
+            linkData:nil
+            linkCache:nil];
     NSString *url = [request processResponse:response];
 
     XCTAssertEqualObjects(url, EXPECTED_URL);
@@ -145,16 +209,28 @@
     NSString * const CHANNEL = @"foo-channel";
     NSString * const FEATURE = @"foo-feature";
     NSString * const STAGE = @"foo-stage";
+    NSString * const CAMPAIGN = @"foo-campaign";
     NSDictionary * const PARAMS = @{ @"foo-param": @"bar-value" };
     
     BNCPreferenceHelper *preferenceHelper = [BNCPreferenceHelper preferenceHelper];
     preferenceHelper.userUrl = nil;
     
-    BranchShortUrlSyncRequest *request = [[BranchShortUrlSyncRequest alloc] initWithTags:TAGS alias:ALIAS type:LINK_TYPE matchDuration:DURATION channel:CHANNEL feature:FEATURE stage:STAGE params:PARAMS linkData:nil linkCache:nil];
+    BranchShortUrlSyncRequest *request =
+        [[BranchShortUrlSyncRequest alloc]
+            initWithTags:TAGS
+            alias:ALIAS
+            type:LINK_TYPE
+            matchDuration:DURATION
+            channel:CHANNEL
+            feature:FEATURE
+            stage:STAGE
+            campaign:CAMPAIGN
+            params:PARAMS
+            linkData:nil
+            linkCache:nil];
     NSString *url = [request processResponse:response];
     
     XCTAssertNil(url);
-
 }
 
 @end

@@ -1,5 +1,111 @@
 Branch iOS SDK Change Log
 
+- v0.15.3
+  * *Master Release*
+
+- v0.15.2
+  * *QA Release*
+  * Updated BNCStrongMatchHelper to handle UISplitViewController (#625).
+
+- v0.15.1
+  * *Beta Release*
+  * Master release candidate.
+  * Added an example of opening a Branch link in-app. (#621)
+
+- v0.15.0
+  * *Beta Release*
+  * Added 'The Planets' WebView example.
+    - This example demonstrates how to use Branch links in an app that has table view and web view.
+  * Added unit tests and fixed bugs as needed.
+    - Changed the NSTimer to a dispatch_timer.  NSTimers only fire in certain run modes.
+    - Added environment parameters to control the test cases without re-compiling.
+    - Standardized test cases.
+    - All tests pass.
+  * Updated README.md SDK integration documentation to include the new
+    `[Branch application:openURL:sourceApplication:annotation:annotation]` method.
+  * Added Email HTML support to BranchActivityItemProvider.
+  * Added logging functions for Swift.
+
+- v0.14.12
+  * Fixed headers for Swift compatibility AIS-242 (#615).
+
+- v0.14.11
+  * *Master Release*
+  * Added `BranchShareLink.h` to public headers.
+
+- v0.14.10
+  * *Master Release*
+  * Fixed a crash bug in `[BNCSystemObserver appBuildDate]`.
+  * Added a date in the sharing text for the testbed apps (AIS-228).
+
+- v0.14.9
+  * *Master Release*
+  * Updated the Branch-TestBed Branch-TestBed-Swift examples.
+  * Verified Xcode 8.3 and iOS 10.3 compatibility.
+
+- v0.14.5
+  * *Beta Release*
+  * Added two new Branch methods for handling opening scheme-based URLs from an app delegate.
+    These methods match the corresponding UIApplicationDelegate methods and allow the Branch SDK
+    more flexibility when handling scheme-based URLs.  The methods are:
+
+```
+        - (BOOL)application:(UIApplication *)application
+                    openURL:(NSURL *)url
+          sourceApplication:(NSString *)sourceApplication
+                 annotation:(id)annotation;
+```
+    and
+```
+        - (BOOL)application:(UIApplication *)application
+                    openURL:(NSURL *)url
+                    options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options;
+```
+
+- v0.14.4
+  * *Beta Release*
+  * Fixed `getUpdateState` so it works on enterprise distribution. INTENG-3189 (#601)
+  * Added light-weight logging. AIS-193 (#591)
+
+- v0.14.1
+  * *Beta Release*
+  * Added a new Branch class, `BranchShareLink`, that encapsulates a `BranchUniversalObject`,
+    `BranchLinkProperties`, and sharing interaction for easier and more flexible Branch link
+    sharing. The class can provide `UIActivityItemProvider` items or present an Apple Activity View
+    Controller.
+  * Added an example of sharing with the `BranchShareLink` in the Testbed-Swift example app.
+  * Added a new BranchUniversalObject method `[BranchUniversalObject userCompletedAction:withState:]`.
+  * Minor bug fixes and unit test updates.
+  * Updated `transaction_id` for commerce events.
+  * Fixed a crash bug when adding Branch identity to Fabric answers.
+
+- v0.13.5
+  * Updated Xcode 7 example project to work on iOS 7.
+  * Added iAd framework to Swift example so that the Apple Search Ad query works.
+
+- v0.13.1
+  * *Beta Release*
+  * Version strings are now displayed in the testbed apps.
+  * Made sure that Branch callbacks happen on the main thread.
+  * Fixed the Xcode 7 example to work with unit tests.
+  * Fixed content discovery to work consistently.
+  * Updated the Apple Search Ad debug mode campaign name to 'DebugAppleSearchAdsCampaignName'.
+
+- v0.13.0
+  * *Beta Release*
+  * All the unit tests now compile, run, and pass.
+  * Added the `branchAPIURL` property to `BNCPreferenceHelper` instances.
+      This property can be set when testing with mocking frameworks like WireMock, where canned
+      server responses are needed for functional testing scenarios.
+
+      This property can be set before Branch is initialized.  For example:
+      ```objc
+      [BNCPreferenceHelper preferenceHelper].branchAPIURL = @"http://localhost/branch-mock";
+      [[Branch getInstance] initSessionWithLaunchOptions:launchOptions];
+      ```
+
+      Be sure to use the Branch production API URL in production apps!
+
 - v0.12.30
   * Fixed some rare app crashes in BranchOpenRequest due to a race condition.
   * Prevent a crash by making a deep copy of dictionary before merging entries. (#573)
@@ -12,11 +118,11 @@ Branch iOS SDK Change Log
     - Fixed a race condition that caused a rare app crash.
 
 - v0.12.29
-  * > Beta Release <
+  * *Beta Release*
   * The browser user agent string is now cached for faster SDK startup (AIS-197).
 
 - v0.12.28
-  * > Beta Release <
+  * *Beta Release*
   * Added the `getLatestReferringParamsSynchronous` method AIS-8 (#536).
     - For details see [`getLatestReferringParamsSynchronous`](https://github.com/BranchMetrics/ios-branch-deep-linking#retrieve-session-install-or-open-parameters)
       in the README.md documentation.
@@ -34,7 +140,7 @@ Branch iOS SDK Change Log
   * Updated project and include files for Xcode 8.3.
 
 - v0.12.25
-  * > Beta Release <
+  * *Beta Release*
   * Added a deployment script for beta releases.
   * Fixed crashes related to nil values being inserted into a dictionary (GH #551 & #552).
   * Made callback block properties atomic/copy to prevent a possible crashes due to race conditions.
@@ -64,7 +170,7 @@ Branch iOS SDK Change Log
   * Fixed problem where getLatestReferringParams was sometimes returning the wrong params (#532).
 
 - v0.12.21
-  * > Beta Release <
+  * *Beta Release*
   * Fixed iOS 10.2.2 app install/update reporting (INFRA-1484).
   * Don't add 'type' or 'duration' to link data if they're 0 (AIS-97).
   * Made UIApplication use optional so that iMessage extensions could build (GH-#521).

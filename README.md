@@ -70,8 +70,20 @@ There's a full demo app embedded in this repository, but you can also check out 
 Branch is available through [CocoaPods](http://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```objc
-pod "Branch"
+pod 'Branch'
 ```
+
+Then, from the command line, `cd` to your project directory, and do:
+
+```
+pod install
+pod update
+```
+
+to install the Branch pod and update it to the latest version of the SDK.
+
+Make sure to do the `pod update`.  CocoaPods may not use the latest version of the SDK otherwise!
+
 ### Carthage
 
 To integrate Branch into your project using Carthage add the following to your `Cartfile`:
@@ -110,6 +122,10 @@ If you want to add a key for both your live and test apps at the same time, you 
 2. For test app, use "test" (without double quotes) for key, String for type, and your test branch key for value.
 
 ![Branch Multi Key Demo](docs/images/branch-multi-key-plist.png)
+
+Note: If you used Fabric to install Branch as a kit, your Branch keys will be in your Info.plist as an element under the Fabric > Kits array, like this:
+
+![Branch Fabric Keys](docs/images/branch-fabric-key-plist.png)
 
 ### Register a URI Scheme Direct Deep Linking (Optional but Recommended)
 
@@ -211,7 +227,15 @@ To deep link, Branch must initialize a session to check if the user originated f
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    if (![[Branch getInstance] handleDeepLink:url]) {
+
+    BOOL branchHandled =
+        [[Branch getInstance]
+            application:application
+                openURL:url
+      sourceApplication:sourceApplication
+             annotation:annotation];
+
+    if (!branchHandled) {
         // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
     }
     return YES;
@@ -242,8 +266,17 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 
 func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-    // pass the url to the handle deep link call
-    Branch.getInstance().handleDeepLink(url)
+
+    // Pass the url to the handle deep link call
+    let branchHandled = Branch.getInstance().application(application,
+        open: url,
+        sourceApplication: sourceApplication,
+        annotation: annotation
+    )
+    if (!branchHandled) {
+        // If not handled by Branch, do other deep link routing for the
+        // Facebook SDK, Pinterest SDK, etc
+    }
 
     return true
 }
@@ -543,11 +576,12 @@ parameters such as the campaign name, and take special action in you app after a
 track the effectiveness of a campaign in the Branch dashboard, along with other your other Branch
 statistics, such as total installs, referrals, and app link statistics.
 
-1. External resources
+* External resources
   + [Apple Search Ads](https://searchads.apple.com/)
   + [Apple Search Ads for Developers](https://developer.apple.com/app-store/search-ads/)
   + [Apple Search Ads WWDC](https://developer.apple.com/videos/play/wwdc2016/302/)
 
+* Important: You must add the iAd.framework to your project to enable Apple Search Ad checking.
 
 #### Methods
 
@@ -860,6 +894,20 @@ The majority of share options only include one string of text, except email, whi
 
 ```swift
 linkProperties.addControlParam("$email_subject", withValue: "Therapists hate him.")
+```
+
+You can also optionally add HTML to the email option and customize the link text. If the link text is left out, the url itself is used
+
+```objc
+[linkProperties addControlParam:@"$email_html_header" withValue:@"<style>your awesome CSS</style>\nOr Dear Friend,"];
+[linkProperties addControlParam:@"$email_html_footer" withValue:@"Thanks!"];
+[linkProperties addControlParam:@"$email_html_link_text" withValue:@"Tap here"];
+```
+
+```swift
+linkProperties.addControlParam("$email_html_header", withValue: "<style>your awesome CSS</style>\nOr Dear Friend,")
+linkProperties.addControlParam("$email_html_footer", withValue: "Thanks!")
+linkProperties.addControlParam("$email_html_link_text", withValue: "Tap here")
 ```
 
 #### Returns
